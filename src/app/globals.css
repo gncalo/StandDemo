@@ -1,26 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* fundos (tema escuro sempre) */
+  --background: oklch(0.13 0 0);
+  --surface: oklch(0.18 0 0);
+  --raised: oklch(0.21 0.012 85);
+  --line: oklch(0.27 0.016 85);
+
+  /* dourados */
+  --gold: oklch(0.76 0.128 92);
+  --gold-bright: oklch(0.83 0.118 94);
+  --gold-deep: oklch(0.6 0.115 90);
+  --champagne: oklch(0.92 0.045 95);
+
+  /* texto */
+  --ink: oklch(0.96 0.012 95);
+  --muted: oklch(0.7 0.022 95);
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-line: var(--line);
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-deep: var(--gold-deep);
+  --color-champagne: var(--champagne);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--background);
 }
