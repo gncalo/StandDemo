@@ -31,7 +31,7 @@
   --color-muted: var(--muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-bodoni);
 }
 
 html {
@@ -54,6 +54,23 @@ body {
 :focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
+}
+
+/* escala tipográfica fluida para títulos didone (Bodoni Moda) */
+.h-hero {
+  font-size: clamp(3.25rem, 8.5vw, 6.5rem);
+  line-height: 1;
+  letter-spacing: -0.015em;
+}
+.h-section {
+  font-size: clamp(2.25rem, 4.8vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+}
+.h-sub {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
 }
 
 /* linha fina dourada, assinatura visual do site */

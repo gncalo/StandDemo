@@ -17,10 +17,7 @@ export default async function ViaturasPage({
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6">
       <header className="mb-10">
-        <p className="text-xs uppercase tracking-[0.3em] text-gold">
-          O nosso stock
-        </p>
-        <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
+        <h1 className="font-display h-section text-ink">
           Todas as <span className="italic text-gold">viaturas</span>
         </h1>
       </header>

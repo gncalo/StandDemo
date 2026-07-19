@@ -77,7 +77,7 @@ export default async function ViaturaPage({
           <p className="text-xs uppercase tracking-[0.3em] text-gold">
             {v.marca}
           </p>
-          <h1 className="mt-2 font-display text-4xl text-ink sm:text-5xl">
+          <h1 className="mt-2 font-display h-section text-ink">
             {v.modelo}{" "}
             <span className="italic text-gold">{v.versao}</span>
           </h1>

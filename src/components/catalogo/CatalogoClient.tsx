@@ -123,7 +123,7 @@ export function CatalogoClient({
 
         {resultados.length === 0 ? (
           <div className="border border-line/60 bg-surface px-8 py-20 text-center">
-            <p className="font-display text-3xl text-ink">
+            <p className="font-display h-sub text-ink">
               Sem resultados <span className="italic text-gold">para já</span>
             </p>
             <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted">

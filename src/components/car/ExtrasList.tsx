@@ -5,7 +5,7 @@ export function ExtrasList({ viatura }: { viatura: Viatura }) {
 
   return (
     <section aria-labelledby="extras">
-      <h2 id="extras" className="font-display text-3xl text-ink">
+      <h2 id="extras" className="font-display h-sub text-ink">
         Extras e <span className="italic text-gold">equipamento</span>
       </h2>
       <div className="mt-6 grid gap-8 sm:grid-cols-2">

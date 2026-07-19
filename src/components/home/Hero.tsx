@@ -25,7 +25,7 @@ export function Hero() {
             </p>
           </Reveal>
           <Reveal delay={0.1}>
-            <h1 className="mt-4 font-display text-5xl leading-[1.05] text-ink sm:text-6xl md:text-7xl">
+            <h1 className="mt-4 font-display h-hero text-ink">
               Que viatura
               <br />
               <span className="italic text-gold">procura?</span>

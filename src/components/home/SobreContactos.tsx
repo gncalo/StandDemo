@@ -6,10 +6,7 @@ export function SobreContactos() {
     <section id="contactos" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-20 sm:px-6 sm:py-28">
       <div className="grid gap-14 md:grid-cols-2">
         <Reveal>
-          <p className="text-xs uppercase tracking-[0.3em] text-gold">
-            O nosso stand
-          </p>
-          <h2 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
+          <h2 className="font-display h-section text-ink">
             Qualidade e <span className="italic text-gold">confiança</span>
           </h2>
           {stand.sobre.map((paragrafo) => (

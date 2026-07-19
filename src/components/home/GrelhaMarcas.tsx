@@ -11,8 +11,7 @@ export function GrelhaMarcas() {
     <section className="border-y border-line/60 bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <Reveal>
-          <p className="text-xs uppercase tracking-[0.3em] text-gold">Marcas</p>
-          <h2 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
+          <h2 className="font-display h-section text-ink">
             Escolha pela <span className="italic text-gold">marca</span>
           </h2>
         </Reveal>

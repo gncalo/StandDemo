@@ -11,12 +11,12 @@ export function Destaques() {
       <Reveal>
         <div className="flex items-end justify-between gap-6">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-gold">
-              Seleção da casa
-            </p>
-            <h2 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
+            <h2 className="font-display h-section text-ink">
               Viaturas em <span className="italic text-gold">destaque</span>
             </h2>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
+              Uma seleção da casa, verificada ponto a ponto e pronta a entregar.
+            </p>
           </div>
           <BotaoLink
             href="/viaturas"

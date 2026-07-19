@@ -11,7 +11,7 @@ export function Sugestoes({ atual }: { atual: Viatura }) {
     <section className="border-t border-line/60 bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <Reveal>
-          <h2 className="font-display text-3xl text-ink sm:text-4xl">
+          <h2 className="font-display h-sub text-ink">
             Também vai gostar <span className="italic text-gold">destas</span>
           </h2>
         </Reveal>
