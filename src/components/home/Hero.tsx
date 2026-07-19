@@ -11,7 +11,7 @@ export function Hero() {
         fill
         priority
         sizes="100vw"
-        className="object-cover object-center"
+        className="kenburns object-cover object-center"
       />
       {/* véus para legibilidade sobre a foto */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-background/20" />

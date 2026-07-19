@@ -29,9 +29,11 @@ export function RangeSlider({
 
   return (
     <fieldset>
-      <legend className="mb-1.5 flex w-full items-baseline justify-between text-xs">
-        <span className="uppercase tracking-[0.2em] text-muted">{rotulo}</span>
-        <span className="text-champagne">
+      <legend className="mb-1.5 w-full text-xs">
+        <span className="block uppercase tracking-[0.2em] text-muted">
+          {rotulo}
+        </span>
+        <span className="mt-1 block text-champagne">
           {formatar(valorMin)} — {formatar(valorMax)}
         </span>
       </legend>
