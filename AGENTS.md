@@ -19,7 +19,55 @@ Site de demonstração de um **stand de automóveis**, para apresentar a um clie
 
 ## Design — inspirações e cores
 
-> **POR PREENCHER** — o dono do projeto vai fornecer 2 sites de inspiração (URLs) e a paleta de cores. Até lá, não fixar identidade visual definitiva; quando forem fornecidos, registar aqui os URLs, a paleta (tokens) e as decisões de estilo derivadas.
+### Inspirações
+
+- **https://www.pintoesousa.com/viaturas/usadas** — stand de luxo (Aston Martin, Bentley, BMW M). Referência principal para o **registo visual premium** e para a **listagem/pesquisa**.
+- **https://www.niceportocar.pt** — referência para a **estrutura da homepage** (hero com pesquisa, destaques, grelha de marcas, secções de serviços/contactos).
+
+Ambos correm na mesma plataforma white-label (multidealer/easysite.pt), pelo que partilham funcionalidades. O StandDemo replica essas funcionalidades com identidade visual própria — não copiar o layout Bootstrap deles; elevar o nível (moderno, animado, premium).
+
+O que os define funcionalmente:
+
+- **Pesquisa rápida no hero** ("Que Viatura Procura?"): Marca, Modelo, Combustível + botão com **contagem de resultados em tempo real** ("Ver N resultados").
+- **Pesquisa detalhada**: Marca, Modelo; sliders de intervalo para Preço, Ano, Quilómetros, Potência; dropdowns Transmissão, Combustível, Segmento, Lotação; "Limpar Parâmetros".
+- **Cards de viatura**: carrossel de fotos com setas, badges "Vendido"/"Reservado"/"IVA Dedutível", info: Mês/Ano · Combustível · Km · Marca Modelo Versão · Preço.
+- **Homepage**: hero + pesquisa, "Viaturas em Destaque", "Últimas entradas", grelha de Marcas (logos que filtram a listagem), stock com "Ordenar por", secção sobre o stand, "Onde estamos?" (morada, telefones, horários), CTA flutuante "Fale agora".
+
+### Paleta — preto e dourado
+
+Tema **escuro por defeito**. Tokens de referência (afinar em OKLCH na implementação; usar a guidance da skill impeccable):
+
+| Papel | Cor |
+|---|---|
+| Fundo base | `#0A0A0A` |
+| Surface (cards, painéis) | `#141414` |
+| Surface elevada (quente) | `#1C1A16` |
+| Bordas/divisores | `#2A2620` |
+| Dourado primário (CTAs, realces) | `#D4AF37` |
+| Dourado hover/realce | `#E5C158` |
+| Dourado profundo (bordas ativas, detalhes) | `#9C7C1E` |
+| Champanhe (tints, texto dourado suave) | `#F0E6C8` |
+| Texto principal (branco quente) | `#F5F2EA` |
+| Texto secundário | `#A39E8F` |
+
+Regras: o dourado é cor de **ação e realce** (CTAs, badges, hover, detalhes finos) — nunca em grandes áreas; as **fotos dos carros são o elemento dominante**; gradientes e brilhos dourados com moderação, para dar tom premium sem cair no kitsch.
+
+## Páginas e funcionalidades (âmbito demo)
+
+- **Homepage `/`**: hero escuro com pesquisa rápida (Marca/Modelo/Combustível + "Ver N resultados" com contagem live), Viaturas em Destaque, grelha de Marcas, secção sobre/contactos e rodapé.
+- **Listagem `/viaturas`**: pesquisa detalhada (Marca, Modelo, intervalos de Preço/Ano/Km, Combustível, Transmissão, Segmento) com contagem live e "Limpar Parâmetros"; cards com carrossel de fotos e badges; "Ordenar por" (preço, ano, km).
+- **Detalhe `/carros/[marca]/[modelo]/[id]`** — página dedicada, trabalhada a fundo:
+  - Galeria de fotos imersiva com contador ("N Fotos") e lightbox.
+  - Título (marca + modelo + versão) e preço em destaque dourado.
+  - **Ficha técnica completa**: Registo (Mês/Ano), Quilómetros, Lugares, Segmento, Combustível, Potência (Cv), Cilindrada (Cc), Transmissão, Cor, Cor Interior, Portas, Origem, Estado, Garantia, Livro de Revisões, 2ª Chave, Classe de Portagem, Matrícula e VIN (fictícios).
+  - Lista de extras/equipamento por categoria.
+  - Cartão-resumo sticky (preço + CTA de contacto); botões "Partilhar" e "Imprimir"; "Também vai gostar destes" com outras viaturas.
+
+### Modelo de dados mock (`src/data/`)
+
+Tipo `Viatura` com os campos que suportam a ficha técnica acima, mais: `fotos[]`, `extras[]` (por categoria), `destaque` (bool), `estadoVenda` (`disponivel` | `reservado` | `vendido`) e `ivaDedutivel` (bool). Todas as viaturas devem ter ficha completa e consistente.
+
+**Fora de âmbito** (omitir ou deixar como nav decorativa): motos, notícias, galeria, intermediação de crédito, multi-stand, comparador e geração real de PDF.
 
 ## Stack
 
