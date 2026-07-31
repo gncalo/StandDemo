@@ -1,10 +1,73 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useRef } from "react";
-import { PsCarCard } from "@/components/pintoesousa/PsCarCard";
+import { useEffect, useRef, useState } from "react";
 import { PsSectionTitle } from "@/components/pintoesousa/PsSectionTitle";
+import { formatarNumero, formatarPreco, formatarRegisto } from "@/lib/format";
+import { urlViaturaPs } from "@/lib/slug";
 import type { Viatura } from "@/lib/types";
+
+const GAP = 24;
+
+function IconeCalendario() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M7 3v3M17 3v3M4 8h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function IconeCombustivel() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M5 21V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v16M4 21h11M14 9h3a2 2 0 0 1 2 2v6a1.5 1.5 0 0 0 3 0V8l-3-3M8 8h3"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+function IconeKm() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm1.4-1.4L18 8M4.5 18a9 9 0 1 1 15 0"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function Badge({ viatura }: { viatura: Viatura }) {
+  const t =
+    viatura.estadoVenda === "vendido"
+      ? { txt: "Vendido", cls: "bg-background/85 text-muted" }
+      : viatura.estadoVenda === "reservado"
+        ? { txt: "Reservado", cls: "gold-metal-fill text-background" }
+        : viatura.ivaDedutivel
+          ? { txt: "IVA Dedutível", cls: "border border-gold/60 bg-background/70 text-champagne" }
+          : null;
+  if (!t) return null;
+  return (
+    <span
+      className={`absolute left-1/2 top-4 z-10 -translate-x-1/2 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] backdrop-blur ${t.cls}`}
+    >
+      {t.txt}
+    </span>
+  );
+}
 
 export function PsCarouselViaturas({
   titulo,
@@ -19,61 +82,174 @@ export function PsCarouselViaturas({
   verTodasHref?: string;
   fundo?: "base" | "surface";
 }) {
-  const trilho = useRef<HTMLDivElement>(null);
+  const total = viaturas.length;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [activo, setActivo] = useState(0);
+  const [dims, setDims] = useState({ card: 0, container: 0 });
 
-  const deslizar = (dir: number) => {
-    const el = trilho.current;
+  useEffect(() => {
+    const el = wrapRef.current;
     if (!el) return;
-    const passo = el.clientWidth * 0.85;
-    el.scrollBy({ left: dir * passo, behavior: "smooth" });
-  };
+    const medir = () => {
+      const container = el.clientWidth;
+      const card = Math.min(460, Math.round(container * 0.8));
+      setDims({ card, container });
+    };
+    medir();
+    const ro = new ResizeObserver(medir);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const ir = (i: number) => setActivo(Math.max(0, Math.min(total - 1, i)));
+
+  const offset = dims.container / 2 - dims.card / 2 - activo * (dims.card + GAP);
 
   return (
-    <section
-      className={`${fundo === "surface" ? "border-y border-line/60 bg-surface/40" : ""}`}
-    >
+    <section className={fundo === "surface" ? "border-y border-line/60 bg-surface/40" : ""}>
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20">
         <PsSectionTitle titulo={titulo} subtitulo={subtitulo} />
 
-        <div className="relative mt-10">
+        <div ref={wrapRef} className="relative mt-12 overflow-hidden">
           {/* setas */}
           <button
             type="button"
             aria-label="Anterior"
-            onClick={() => deslizar(-1)}
-            className="absolute -left-2 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-line/70 bg-background/90 text-lg text-ink backdrop-blur transition-colors hover:border-gold hover:text-gold-bright md:flex"
+            onClick={() => ir(activo - 1)}
+            disabled={activo === 0}
+            className="absolute left-1 top-[38%] z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-4xl font-thin text-ink/70 transition-all hover:text-gold-bright disabled:pointer-events-none disabled:opacity-20 sm:left-4"
           >
             ‹
           </button>
           <button
             type="button"
             aria-label="Seguinte"
-            onClick={() => deslizar(1)}
-            className="absolute -right-2 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-line/70 bg-background/90 text-lg text-ink backdrop-blur transition-colors hover:border-gold hover:text-gold-bright md:flex"
+            onClick={() => ir(activo + 1)}
+            disabled={activo === total - 1}
+            className="absolute right-1 top-[38%] z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-4xl font-thin text-ink/70 transition-all hover:text-gold-bright disabled:pointer-events-none disabled:opacity-20 sm:right-4"
           >
             ›
           </button>
 
+          {/* trilho */}
           <div
-            ref={trilho}
-            className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex items-center transition-transform duration-500 ease-out"
+            style={{ gap: GAP, transform: `translateX(${offset}px)` }}
           >
-            {viaturas.map((v, i) => (
-              <div
-                key={v.id}
-                className="w-[80%] shrink-0 snap-start sm:w-[46%] lg:w-[31%] xl:w-[23.5%]"
-              >
-                <PsCarCard viatura={v} prioridade={i < 2} />
-              </div>
-            ))}
+            {viaturas.map((v, i) => {
+              const ativo = i === activo;
+              const href = urlViaturaPs(v);
+              const vendido = v.estadoVenda === "vendido";
+              return (
+                <div
+                  key={v.id}
+                  onClick={() => !ativo && ir(i)}
+                  style={{ width: dims.card || undefined }}
+                  className={`shrink-0 transition-all duration-500 ease-out ${
+                    ativo
+                      ? "z-10 scale-100 opacity-100"
+                      : "scale-[0.82] cursor-pointer opacity-35 blur-[2px]"
+                  }`}
+                >
+                  <article className={ativo ? "" : "pointer-events-none"}>
+                    {/* foto */}
+                    <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-line/60 bg-surface">
+                      <Badge viatura={v} />
+                      <Link href={href} aria-label={`${v.marca} ${v.modelo}`}>
+                        <Image
+                          src={v.fotos[0]}
+                          alt={`${v.marca} ${v.modelo}`}
+                          fill
+                          sizes="(max-width: 640px) 80vw, 460px"
+                          priority={i < 2}
+                          className={`object-cover ${vendido ? "opacity-70 saturate-50" : ""}`}
+                        />
+                      </Link>
+                      {/* gradiente + info */}
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background/90 to-transparent" />
+                      <div className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-4 text-[13px] font-medium text-champagne">
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-gold">
+                            <IconeCalendario />
+                          </span>
+                          {formatarRegisto(v.registoMes, v.registoAno)}
+                        </span>
+                        <span className="h-4 w-px bg-line" />
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-gold">
+                            <IconeCombustivel />
+                          </span>
+                          {v.combustivel}
+                        </span>
+                        <span className="h-4 w-px bg-line" />
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-gold">
+                            <IconeKm />
+                          </span>
+                          {vendido ? "—" : formatarNumero(v.quilometros)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* painel */}
+                    <div className="relative mx-2 -mt-1 rounded-b-2xl bg-surface px-6 pb-6 pt-6">
+                      <Link href={href} className="block">
+                        <h3 className="text-2xl font-extrabold leading-tight text-ink transition-colors hover:text-gold-bright">
+                          {v.marca}
+                        </h3>
+                        <p className="mt-1 line-clamp-1 text-base text-muted">
+                          {v.modelo} {v.versao}
+                        </p>
+                        <p className="mt-5 text-[11px] uppercase tracking-[0.14em] text-muted">
+                          Preço
+                        </p>
+                        <p className="mt-0.5 text-2xl font-extrabold text-gold">
+                          {vendido ? "Vendido" : formatarPreco(v.preco)}
+                        </p>
+                      </Link>
+                      <Link
+                        href={href}
+                        aria-label="Ver detalhes"
+                        className="absolute bottom-5 right-5 flex h-9 w-14 items-center justify-center rounded-full bg-raised text-lg text-muted transition-colors hover:bg-gold hover:text-background"
+                      >
+                        …
+                      </Link>
+                    </div>
+                  </article>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="mt-8 text-center">
+        {/* pontos */}
+        <div className="mt-8 flex items-center justify-center gap-2">
+          {viaturas.map((v, i) => (
+            <button
+              key={v.id}
+              type="button"
+              aria-label={`Ver viatura ${i + 1}`}
+              aria-current={i === activo}
+              onClick={() => ir(i)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i === activo ? "w-6 bg-gold" : "w-2 bg-line hover:bg-muted"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-10 text-center">
           <Link
             href={verTodasHref}
-            className="inline-flex items-center gap-2 border border-gold/40 px-7 py-3 text-sm font-semibold uppercase tracking-[0.1em] text-champagne transition-colors hover:border-gold hover:text-gold-bright"
+            className="gold-metal-fill inline-flex items-center gap-2.5 rounded-full px-8 py-3.5 text-sm font-bold uppercase tracking-[0.1em] text-background"
           >
+            <span
+              aria-hidden
+              className="flex h-5 w-5 items-center justify-center rounded-full border border-background/40 text-xs"
+            >
+              +
+            </span>
             Ver Listagem Viaturas
           </Link>
         </div>
