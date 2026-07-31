@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Contador } from "@/components/ui/Contador";
@@ -9,20 +10,17 @@ import { filtrarViaturas, serializeFiltros } from "@/lib/filtros";
 import type { Combustivel } from "@/lib/types";
 
 const selectClasses =
-  "w-full appearance-none rounded-md border border-line bg-background/80 px-4 py-3 pr-10 text-sm text-ink outline-none transition-colors focus:border-gold [&>option]:bg-surface";
+  "w-full appearance-none border border-line bg-background px-4 py-3 pr-9 text-sm text-ink outline-none transition-colors focus:border-gold [&>option]:bg-surface";
 
 function Campo({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {
   return (
     <label className="block text-left">
-      <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+      <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
         {rotulo}
       </span>
       <span className="relative block">
         {children}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gold"
-        >
+        <span aria-hidden className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gold">
           ▾
         </span>
       </span>
@@ -30,7 +28,7 @@ function Campo({ rotulo, children }: { rotulo: string; children: React.ReactNode
   );
 }
 
-export function ClassicQuickSearch() {
+export function PsQuickSearch() {
   const router = useRouter();
   const [marca, setMarca] = useState("");
   const [modelo, setModelo] = useState("");
@@ -47,14 +45,11 @@ export function ClassicQuickSearch() {
 
   const pesquisar = () => {
     const qs = serializeFiltros(filtros);
-    router.push(qs ? `/classic/viaturas?${qs}` : "/classic/viaturas");
+    router.push(qs ? `/pintoesousa/viaturas?${qs}` : "/pintoesousa/viaturas");
   };
 
   return (
-    <div className="rounded-xl border border-line/70 bg-surface/85 p-5 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-6">
-      <p className="mb-4 text-left text-sm font-semibold uppercase tracking-[0.16em] text-gold">
-        Que viatura procura?
-      </p>
+    <div className="w-full border border-line/70 bg-surface/90 p-5 shadow-2xl shadow-black/60 backdrop-blur-xl sm:p-6">
       <div className="grid gap-4 sm:grid-cols-3">
         <Campo rotulo="Marca">
           <select
@@ -65,7 +60,7 @@ export function ClassicQuickSearch() {
               setModelo("");
             }}
           >
-            <option value="">Todas</option>
+            <option value="">Selecionar</option>
             {getMarcas().map((m) => (
               <option key={m.slug} value={m.slug}>
                 {m.nome}
@@ -73,14 +68,9 @@ export function ClassicQuickSearch() {
             ))}
           </select>
         </Campo>
-
         <Campo rotulo="Modelo">
-          <select
-            className={selectClasses}
-            value={modelo}
-            onChange={(e) => setModelo(e.target.value)}
-          >
-            <option value="">Todos</option>
+          <select className={selectClasses} value={modelo} onChange={(e) => setModelo(e.target.value)}>
+            <option value="">Selecionar</option>
             {modelos.map((m) => (
               <option key={m.slug} value={m.slug}>
                 {m.nome}
@@ -88,14 +78,13 @@ export function ClassicQuickSearch() {
             ))}
           </select>
         </Campo>
-
         <Campo rotulo="Combustível">
           <select
             className={selectClasses}
             value={combustivel}
             onChange={(e) => setCombustivel(e.target.value)}
           >
-            <option value="">Todos</option>
+            <option value="">Selecionar</option>
             {getCombustiveis().map((c) => (
               <option key={c} value={c}>
                 {c}
@@ -105,14 +94,22 @@ export function ClassicQuickSearch() {
         </Campo>
       </div>
 
-      <button
-        type="button"
-        onClick={pesquisar}
-        className="gold-metal-fill mt-5 w-full rounded-md px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.1em] text-background"
-      >
-        Ver <Contador valor={resultados} />{" "}
-        {resultados === 1 ? "resultado" : "resultados"}
-      </button>
+      <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+        <button
+          type="button"
+          onClick={pesquisar}
+          className="gold-metal-fill inline-flex w-full items-center justify-center gap-2 px-6 py-3 text-sm font-bold uppercase tracking-[0.08em] text-background sm:w-auto"
+        >
+          Ver <Contador valor={resultados} /> {resultados === 1 ? "resultado" : "resultados"}
+          <span aria-hidden>🔍</span>
+        </button>
+        <Link
+          href="/pintoesousa/viaturas"
+          className="text-xs font-semibold uppercase tracking-[0.14em] text-champagne transition-colors hover:text-gold-bright"
+        >
+          Pesquisa Detalhada →
+        </Link>
+      </div>
     </div>
   );
 }

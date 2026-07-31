@@ -8,11 +8,11 @@ export function urlViaturasPorMarca(marcaSlug: string): string {
   return `/viaturas?marca=${marcaSlug}`;
 }
 
-/* variante "classic" (rota /classic) — mesma estrutura, prefixo próprio */
-export function urlViaturaClassic(v: Viatura): string {
-  return `/classic/carros/${v.marcaSlug}/${v.modeloSlug}/${v.id}`;
+/* variante "pintoesousa" (rota /pintoesousa) — mesma estrutura, prefixo próprio */
+export function urlViaturaPs(v: Viatura): string {
+  return `/pintoesousa/carros/${v.marcaSlug}/${v.modeloSlug}/${v.id}`;
 }
 
-export function urlViaturasClassicPorMarca(marcaSlug: string): string {
-  return `/classic/viaturas?marca=${marcaSlug}`;
+export function urlViaturasPsPorMarca(marcaSlug: string): string {
+  return `/pintoesousa/viaturas?marca=${marcaSlug}`;
 }

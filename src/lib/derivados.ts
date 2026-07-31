@@ -51,10 +51,15 @@ export function getSegmentos(): Segmento[] {
   );
 }
 
+export function getLotacoes(): number[] {
+  return [...new Set(viaturas.map((v) => v.lugares))].sort((a, b) => a - b);
+}
+
 export interface Intervalos {
   preco: [number, number];
   ano: [number, number];
   km: [number, number];
+  potencia: [number, number];
 }
 
 function arredondarIntervalo(
@@ -74,6 +79,7 @@ export function getIntervalos(): Intervalos {
       Math.max(...viaturas.map((v) => v.registoAno)),
     ],
     km: arredondarIntervalo(viaturas.map((v) => v.quilometros), 5000),
+    potencia: arredondarIntervalo(viaturas.map((v) => v.potenciaCv), 10),
   };
 }
 

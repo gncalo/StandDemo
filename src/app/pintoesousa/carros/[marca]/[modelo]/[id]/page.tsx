@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExtrasList } from "@/components/car/ExtrasList";
 import { Gallery } from "@/components/car/Gallery";
-import { SpecsTable } from "@/components/car/SpecsTable";
-import { StickyCard } from "@/components/car/StickyCard";
-import { ClassicSugestoes } from "@/components/classic/ClassicSugestoes";
+import { ExtrasList } from "@/components/car/ExtrasList";
+import { PsFichaTecnica } from "@/components/pintoesousa/PsFichaTecnica";
+import { PsResumoCard } from "@/components/pintoesousa/PsResumoCard";
+import { PsSugestoes } from "@/components/pintoesousa/PsSugestoes";
+import { PsOndeEstamos } from "@/components/pintoesousa/PsOndeEstamos";
 import { viaturas } from "@/data/viaturas";
 import { formatarKm, formatarPreco } from "@/lib/format";
 
@@ -25,12 +26,12 @@ function encontrarViatura(marca: string, modelo: string, id: string) {
 
 export async function generateMetadata({
   params,
-}: PageProps<"/classic/carros/[marca]/[modelo]/[id]">): Promise<Metadata> {
+}: PageProps<"/pintoesousa/carros/[marca]/[modelo]/[id]">): Promise<Metadata> {
   const { marca, modelo, id } = await params;
   const v = encontrarViatura(marca, modelo, id);
   if (!v) return { title: "Viatura não encontrada" };
 
-  const titulo = `${v.marca} ${v.modelo} ${v.versao} — ${v.registoAno}`;
+  const titulo = `${v.marca} ${v.modelo} ${v.versao}`;
   const descricao = `${v.marca} ${v.modelo} ${v.versao}, ${v.registoAno}, ${formatarKm(
     v.quilometros,
   )}, ${v.combustivel}. ${
@@ -48,23 +49,25 @@ export async function generateMetadata({
   };
 }
 
-export default async function ClassicViaturaPage({
+export default async function PsViaturaPage({
   params,
-}: PageProps<"/classic/carros/[marca]/[modelo]/[id]">) {
+}: PageProps<"/pintoesousa/carros/[marca]/[modelo]/[id]">) {
   const { marca, modelo, id } = await params;
   const v = encontrarViatura(marca, modelo, id);
   if (!v) notFound();
 
+  const vendido = v.estadoVenda === "vendido";
+
   return (
     <>
-      <div className="mx-auto max-w-7xl px-6 pb-16 pt-10 sm:pt-12">
-        <nav aria-label="Percurso" className="mb-6 text-xs text-muted">
-          <Link href="/classic/viaturas" className="transition-colors hover:text-gold-bright">
+      <div className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 sm:pt-10">
+        <nav aria-label="Percurso" className="mb-5 text-xs text-muted">
+          <Link href="/pintoesousa/viaturas" className="transition-colors hover:text-gold-bright">
             Viaturas
           </Link>
           <span className="mx-2 text-gold-deep">/</span>
           <Link
-            href={`/classic/viaturas?marca=${v.marcaSlug}`}
+            href={`/pintoesousa/viaturas?marca=${v.marcaSlug}`}
             className="transition-colors hover:text-gold-bright"
           >
             {v.marca}
@@ -73,32 +76,40 @@ export default async function ClassicViaturaPage({
           <span className="text-champagne">{v.modelo}</span>
         </nav>
 
-        <header className="mb-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-            {v.marca}
-          </p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            {v.modelo} <span className="text-muted">{v.versao}</span>
-          </h1>
-        </header>
-
         <div className="grid gap-10 lg:grid-cols-[1fr_360px]">
-          <div className="min-w-0 space-y-14">
+          <div className="min-w-0">
             <Gallery fotos={v.fotos} alt={`${v.marca} ${v.modelo}`} />
-            <p className="max-w-2xl text-base leading-relaxed text-muted">
-              {v.descricao}
-            </p>
-            <SpecsTable viatura={v} />
-            <ExtrasList viatura={v} />
+
+            <header className="mt-8">
+              <h1 className="text-2xl font-bold uppercase tracking-tight text-ink sm:text-3xl">
+                {v.marca} {v.modelo}{" "}
+                <span className="font-normal text-muted">{v.versao}</span>
+              </h1>
+              <p className="mt-2 text-3xl font-bold text-gold">
+                {vendido ? "Vendido" : formatarPreco(v.preco)}
+              </p>
+            </header>
+
+            <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted">{v.descricao}</p>
+
+            <div className="mt-10">
+              <PsFichaTecnica viatura={v} />
+            </div>
+
+            <div className="mt-12">
+              <ExtrasList viatura={v} />
+            </div>
+
+            <PsSugestoes atual={v} />
           </div>
 
           <aside>
-            <StickyCard viatura={v} />
+            <PsResumoCard viatura={v} />
           </aside>
         </div>
       </div>
 
-      <ClassicSugestoes atual={v} />
+      <PsOndeEstamos />
     </>
   );
 }

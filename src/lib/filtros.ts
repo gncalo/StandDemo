@@ -20,6 +20,9 @@ export interface Filtros {
   anoMax?: number;
   kmMin?: number;
   kmMax?: number;
+  potenciaMin?: number;
+  potenciaMax?: number;
+  lugares?: number;
   ordenar?: Ordenacao;
 }
 
@@ -60,6 +63,9 @@ export function parseFiltros(sp: SearchParams): Filtros {
     anoMax: umNumero(sp.anoMax),
     kmMin: umNumero(sp.kmMin),
     kmMax: umNumero(sp.kmMax),
+    potenciaMin: umNumero(sp.potenciaMin),
+    potenciaMax: umNumero(sp.potenciaMax),
+    lugares: umNumero(sp.lugares),
     ordenar: ORDENACOES.some((o) => o.valor === ordenar)
       ? (ordenar as Ordenacao)
       : undefined,
@@ -88,6 +94,9 @@ export function filtrarViaturas(lista: Viatura[], filtros: Filtros): Viatura[] {
     if (filtros.anoMax !== undefined && v.registoAno > filtros.anoMax) return false;
     if (filtros.kmMin !== undefined && v.quilometros < filtros.kmMin) return false;
     if (filtros.kmMax !== undefined && v.quilometros > filtros.kmMax) return false;
+    if (filtros.potenciaMin !== undefined && v.potenciaCv < filtros.potenciaMin) return false;
+    if (filtros.potenciaMax !== undefined && v.potenciaCv > filtros.potenciaMax) return false;
+    if (filtros.lugares !== undefined && v.lugares !== filtros.lugares) return false;
     return true;
   });
 }
