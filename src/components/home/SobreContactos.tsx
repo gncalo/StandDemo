@@ -1,6 +1,10 @@
 import { Reveal } from "@/components/ui/Reveal";
 import { stand } from "@/data/stand";
 
+const mapaEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(
+  `${stand.morada} ${stand.codigoPostal}`,
+)}&z=15&output=embed`;
+
 export function SobreContactos() {
   return (
     <section id="contactos" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-20 sm:px-6 sm:py-28">
@@ -85,6 +89,28 @@ export function SobreContactos() {
           </div>
         </Reveal>
       </div>
+
+      <Reveal delay={0.15}>
+        <a
+          href={stand.mapsUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Abrir a localização de ${stand.nome} no Google Maps`}
+          className="group relative mt-14 block aspect-[16/7] overflow-hidden border border-line/60"
+        >
+          <iframe
+            title={`Mapa — ${stand.nome}`}
+            src={mapaEmbed}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            tabIndex={-1}
+            className="pointer-events-none h-full w-full grayscale-[0.35] contrast-[1.05] transition-all duration-500 group-hover:grayscale-0"
+          />
+          <span className="pointer-events-none absolute left-4 top-4 flex items-center gap-2 border border-gold/40 bg-background/80 px-4 py-2 text-xs uppercase tracking-[0.15em] text-champagne backdrop-blur transition-colors group-hover:border-gold group-hover:text-gold-bright">
+            Abrir no Google Maps ↗
+          </span>
+        </a>
+      </Reveal>
     </section>
   );
 }
