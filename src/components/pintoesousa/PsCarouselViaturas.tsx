@@ -9,6 +9,8 @@ import { urlViaturaPs } from "@/lib/slug";
 import type { Viatura } from "@/lib/types";
 
 const GAP = 24;
+const COPIAS = 3; // triplicar a lista para o loop infinito
+const LIMIAR_ARRASTO = 6; // px acima do qual é arrasto (e não clique)
 
 function IconeCalendario() {
   return (
@@ -82,10 +84,19 @@ export function PsCarouselViaturas({
   verTodasHref?: string;
   fundo?: "base" | "surface";
 }) {
-  const total = viaturas.length;
+  const n = viaturas.length;
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [activo, setActivo] = useState(0);
   const [dims, setDims] = useState({ card: 0, container: 0 });
+
+  // índice na lista estendida (arranca na cópia do meio)
+  const [activo, setActivo] = useState(n);
+  const [arrastoPx, setArrastoPx] = useState(0);
+  const [aArrastar, setAArrastar] = useState(false);
+  const [semTransicao, setSemTransicao] = useState(false);
+
+  const inicioX = useRef(0);
+  const moveu = useRef(false);
+  const ativoPonteiro = useRef(false);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -101,9 +112,55 @@ export function PsCarouselViaturas({
     return () => ro.disconnect();
   }, []);
 
-  const ir = (i: number) => setActivo(Math.max(0, Math.min(total - 1, i)));
+  // recentra na banda do meio quando a transição termina (loop sem costura)
+  useEffect(() => {
+    if (semTransicao) {
+      const id = requestAnimationFrame(() =>
+        requestAnimationFrame(() => setSemTransicao(false)),
+      );
+      return () => cancelAnimationFrame(id);
+    }
+  }, [semTransicao]);
 
-  const offset = dims.container / 2 - dims.card / 2 - activo * (dims.card + GAP);
+  if (n === 0) return null;
+
+  const estendido = Array.from({ length: COPIAS }, () => viaturas).flat();
+  const step = dims.card + GAP;
+  const translate = dims.container / 2 - dims.card / 2 - activo * step + arrastoPx;
+
+  const recentrar = () => {
+    if (aArrastar) return;
+    if (activo < n || activo >= 2 * n) {
+      setSemTransicao(true);
+      setActivo(n + (((activo - n) % n) + n) % n);
+    }
+  };
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (!dims.card) return;
+    ativoPonteiro.current = true;
+    moveu.current = false;
+    inicioX.current = e.clientX;
+    setAArrastar(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!ativoPonteiro.current) return;
+    const dx = e.clientX - inicioX.current;
+    if (Math.abs(dx) > LIMIAR_ARRASTO) moveu.current = true;
+    setArrastoPx(dx);
+  };
+  const terminarArrasto = (e: React.PointerEvent) => {
+    if (!ativoPonteiro.current) return;
+    ativoPonteiro.current = false;
+    const dx = e.clientX - inicioX.current;
+    const passos = Math.round(-dx / step);
+    setArrastoPx(0);
+    setAArrastar(false);
+    if (passos !== 0) setActivo((a) => a + passos);
+  };
+
+  const dotAtivo = ((activo % n) + n) % n;
 
   return (
     <section className={fundo === "surface" ? "border-y border-line/60 bg-surface/40" : ""}>
@@ -115,57 +172,77 @@ export function PsCarouselViaturas({
           <button
             type="button"
             aria-label="Anterior"
-            onClick={() => ir(activo - 1)}
-            disabled={activo === 0}
-            className="absolute left-1 top-[38%] z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-4xl font-thin text-ink/70 transition-all hover:text-gold-bright disabled:pointer-events-none disabled:opacity-20 sm:left-4"
+            onClick={() => setActivo((a) => a - 1)}
+            className="absolute left-1 top-[38%] z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-4xl font-thin text-ink/70 transition-colors hover:text-gold-bright sm:left-4"
           >
             ‹
           </button>
           <button
             type="button"
             aria-label="Seguinte"
-            onClick={() => ir(activo + 1)}
-            disabled={activo === total - 1}
-            className="absolute right-1 top-[38%] z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-4xl font-thin text-ink/70 transition-all hover:text-gold-bright disabled:pointer-events-none disabled:opacity-20 sm:right-4"
+            onClick={() => setActivo((a) => a + 1)}
+            className="absolute right-1 top-[38%] z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center text-4xl font-thin text-ink/70 transition-colors hover:text-gold-bright sm:right-4"
           >
             ›
           </button>
 
-          {/* trilho */}
+          {/* trilho arrastável */}
           <div
-            className="flex items-center transition-transform duration-500 ease-out"
-            style={{ gap: GAP, transform: `translateX(${offset}px)` }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={terminarArrasto}
+            onPointerCancel={terminarArrasto}
+            onTransitionEnd={recentrar}
+            onDragStart={(e) => e.preventDefault()}
+            style={{
+              gap: GAP,
+              transform: `translateX(${translate}px)`,
+              touchAction: "pan-y",
+            }}
+            className={`flex select-none items-center ${
+              aArrastar ? "cursor-grabbing" : "cursor-grab"
+            } ${aArrastar || semTransicao ? "" : "transition-transform duration-500 ease-out"}`}
           >
-            {viaturas.map((v, i) => {
+            {estendido.map((v, i) => {
               const ativo = i === activo;
               const href = urlViaturaPs(v);
               const vendido = v.estadoVenda === "vendido";
+              const copia = Math.floor(i / n);
               return (
                 <div
-                  key={v.id}
-                  onClick={() => !ativo && ir(i)}
+                  key={`${copia}-${v.id}`}
+                  onClick={() => !moveu.current && !ativo && setActivo(i)}
                   style={{ width: dims.card || undefined }}
-                  className={`shrink-0 transition-all duration-500 ease-out ${
+                  className={`shrink-0 transition-[transform,opacity,filter] duration-500 ease-out ${
                     ativo
                       ? "z-10 scale-100 opacity-100"
-                      : "scale-[0.82] cursor-pointer opacity-35 blur-[2px]"
+                      : "scale-[0.82] opacity-35 blur-[2px]"
                   }`}
                 >
-                  <article className={ativo ? "" : "pointer-events-none"}>
+                  <article
+                    className={ativo ? "" : "pointer-events-none"}
+                    // suprime navegação se houve arrasto
+                    onClickCapture={(e) => {
+                      if (moveu.current) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }
+                    }}
+                  >
                     {/* foto */}
                     <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-line/60 bg-surface">
                       <Badge viatura={v} />
-                      <Link href={href} aria-label={`${v.marca} ${v.modelo}`}>
+                      <Link href={href} aria-label={`${v.marca} ${v.modelo}`} draggable={false}>
                         <Image
                           src={v.fotos[0]}
                           alt={`${v.marca} ${v.modelo}`}
                           fill
+                          draggable={false}
                           sizes="(max-width: 640px) 80vw, 460px"
-                          priority={i < 2}
+                          priority={i < COPIAS}
                           className={`object-cover ${vendido ? "opacity-70 saturate-50" : ""}`}
                         />
                       </Link>
-                      {/* gradiente + info */}
                       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background/90 to-transparent" />
                       <div className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-4 text-[13px] font-medium text-champagne">
                         <span className="flex items-center gap-1.5">
@@ -193,7 +270,7 @@ export function PsCarouselViaturas({
 
                     {/* painel */}
                     <div className="relative mx-2 -mt-1 rounded-b-2xl bg-surface px-6 pb-6 pt-6">
-                      <Link href={href} className="block">
+                      <Link href={href} className="block" draggable={false}>
                         <h3 className="text-2xl font-extrabold leading-tight text-ink transition-colors hover:text-gold-bright">
                           {v.marca}
                         </h3>
@@ -210,6 +287,7 @@ export function PsCarouselViaturas({
                       <Link
                         href={href}
                         aria-label="Ver detalhes"
+                        draggable={false}
                         className="absolute bottom-5 right-5 flex h-9 w-14 items-center justify-center rounded-full bg-raised text-lg text-muted transition-colors hover:bg-gold hover:text-background"
                       >
                         …
@@ -229,10 +307,10 @@ export function PsCarouselViaturas({
               key={v.id}
               type="button"
               aria-label={`Ver viatura ${i + 1}`}
-              aria-current={i === activo}
-              onClick={() => ir(i)}
+              aria-current={i === dotAtivo}
+              onClick={() => setActivo((a) => Math.floor(a / n) * n + i)}
               className={`h-2 rounded-full transition-all duration-300 ${
-                i === activo ? "w-6 bg-gold" : "w-2 bg-line hover:bg-muted"
+                i === dotAtivo ? "w-6 bg-gold" : "w-2 bg-line hover:bg-muted"
               }`}
             />
           ))}
